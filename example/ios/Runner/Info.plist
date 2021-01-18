@@ -41,5 +41,25 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSAppleMusicUsageDescription</key>
+      <string>MyApp does not need this permission</string>
+      <key>NSCalendarsUsageDescription</key>
+      <string>MyApp does not need this permission</string>
+      <key>NSCameraUsageDescription</key>
+      <string>MyApp does not need this permission</string>
+      <key>NSContactsUsageDescription</key>
+      <string>MyApp does not need this permission</string>
+      <key>NSLocationWhenInUseUsageDescription</key>
+      <string>MyApp does not need this permission</string>
+      <key>NSMotionUsageDescription</key>
+      <string>MyApp does not need this permission</string>
+      <key>NSSpeechRecognitionUsageDescription</key>
+      <string>MyApp does not need this permission</string>
+      <key>UIBackgroundModes</key>
+      <array>
+              <string>audio</string>
+      </array>
+      <key>NSMicrophoneUsageDescription</key>
+      <string>MyApp uses the microphone to record your speech and convert it to text.</string>
 </dict>
 </plist>
