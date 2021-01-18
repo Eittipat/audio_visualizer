@@ -1,6 +1,6 @@
-# example
+# audio_visualizer_example
 
-A new Flutter project.
+Demonstrates how to use the audio_visualizer plugin.
 
 ## Getting Started
 

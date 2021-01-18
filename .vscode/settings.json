@@ -1,8 +1,0 @@
-{
-    "[dart]": {
-        "editor.rulers": [
-            255
-        ]
-    },
-    "dart.lineLength": 255,
-}
