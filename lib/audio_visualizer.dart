@@ -15,7 +15,6 @@ class AudioVisualizer {
   final double sensibility;
   int windowSize;
 
-
   static List<List<double>> middleFrequenciesForBands = [
     [125.0, 500, 1000, 2000],
     [250.0, 400, 600, 800],
@@ -70,10 +69,10 @@ class AudioVisualizer {
   List<double> meanLevels;
 
   AudioVisualizer({
-    this.windowSize = 512,
+    this.windowSize = 2048,
     this.bandType = BandType.EightBand,
     this.sampleRate = 44100,
-    this.zeroHzScale = 0.0,
+    this.zeroHzScale = 0.05,
     this.fallSpeed = 0.08,
     this.sensibility = 8.0,
   }) {
@@ -81,7 +80,8 @@ class AudioVisualizer {
   }
 
   void reset() {
-    int bandSize = middleFrequenciesForBands[bandType.index].length;
+    final band = middleFrequenciesForBands[bandType.index];
+    int bandSize = band.length;
     _samples = List<double>.filled(windowSize, 0.0, growable: false);
     levels = List<double>.filled(bandSize, 0.0, growable: false);
     peakLevels = List<double>.filled(bandSize, 0.0, growable: false);
@@ -90,7 +90,7 @@ class AudioVisualizer {
 
   int freqToSpectrumIndex(double freq) {
     // freq = index * (Fs / N)
-    int n = windowSize;
+    int n = windowSize~/2;
     int i = (freq / (sampleRate / n)).floor();
     return i.clamp(0, n - 1);
   }
@@ -98,13 +98,21 @@ class AudioVisualizer {
   DateTime lastDateTime;
   double maxScale = 0.0;
 
-
   List<double> transform(List<double> audio) {
-    final actualLength = audio.length;
+    final middlefrequencies = middleFrequenciesForBands[bandType.index];
+    var bandwidth = bandwidthForBands[bandType.index];
+
+    // padding audio to min length
+    // final minSampleSize = freqToSpectrumIndex(middlefrequencies.last * bandwidth)*2;
+    // final actualLength = FFT.roundToPowerOfTwo(math.max(audio.length, minSampleSize));
+    // audio = FFT.padToSize(audio,actualLength);
+    final actualLength =audio.length;
+
     final temp = FFT.transform(FFT.from(audio, padding: true), inverse: false);
     windowSize = temp.length;
     _samples = FFT.scaleAmplitude(temp, actualLength);
     _samples[0] = _samples[0] * zeroHzScale; // discard 0 hz
+    //_samples = FFT.padToSize(_samples, windowSize);
     assert(_samples.length == windowSize ~/ 2);
 
     if (lastDateTime == null) lastDateTime = DateTime.now();
@@ -112,8 +120,6 @@ class AudioVisualizer {
     double delta = (now.difference(lastDateTime).inMilliseconds / 1000.0);
     lastDateTime = now;
 
-    final middlefrequencies = middleFrequenciesForBands[bandType.index];
-    var bandwidth = bandwidthForBands[bandType.index];
 
     var falldown = fallSpeed * delta;
     var filter = math.exp(-sensibility * delta);
@@ -134,6 +140,4 @@ class AudioVisualizer {
 
     return List.unmodifiable(meanLevels);
   }
-
-
 }

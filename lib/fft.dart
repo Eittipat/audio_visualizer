@@ -10,7 +10,7 @@ class FFT {
     }
 
     final int length = input.length;
-    assert(_isPowerOfTwo(length), 'length must be power of 2');
+    assert(isPowerOfTwo(length), 'length must be power of 2');
     final int half = length ~/ 2;
     final double sign = inverse == true ? -1.0 : 1.0;
     final result = List<Complex>(length);
@@ -36,8 +36,8 @@ class FFT {
   }
 
   static List<Complex> from(List<double> input, {bool padding = true, int size}) {
-    if (size != null) assert(size >= input.length && _isPowerOfTwo(size), 'size must larger than input and must be power of two');
-    final int length = padding ? (size == null ? math.pow(2, (math.log(input.length) / math.log(2)).ceil()) : size) : input.length;
+    if (size != null) assert(size >= input.length && isPowerOfTwo(size), 'size must larger than input and must be power of two');
+    final int length = padding ? (size == null ? roundToPowerOfTwo(input.length) : size) : input.length;
     final output = List<Complex>(length);
     for (int i = 0; i < length; i++) {
       final double value = i >= input.length ? 0.0 : input[i];
@@ -46,8 +46,21 @@ class FFT {
     return output;
   }
 
-  static bool _isPowerOfTwo(int input) {
+  static List<double> padToSize(List<double> input,int size) {
+    final output = List<double>(size);
+    for (int i = 0; i < size; i++) {
+      final double value = i >= input.length ? 0.0 : input[i];
+      output[i] = value;
+    }
+    return output;
+  }
+
+  static bool isPowerOfTwo(int input) {
     return input != 0 && (input & (input - 1)) == 0;
+  }
+
+  static int roundToPowerOfTwo(int input) {
+    return math.pow(2, (math.log(input)/math.log(2)).ceil());
   }
 
   static List<int> fromDoubleToInt(List<double> input) {
