@@ -1,10 +1,14 @@
+import 'package:audio_visualizer/fft.dart';
+import 'package:audio_visualizer/visualizers/visualizer.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-
-import 'package:flutter/services.dart';
+import 'dart:io';
+import 'dart:math' as math;
+import 'dart:convert';
 import 'package:audio_visualizer/audio_visualizer.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:mic_stream/mic_stream.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,87 +20,97 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final AudioVisualizer audioVisualizer = AudioVisualizer();
-  final player = AudioPlayer();
-
+  StreamSubscription _audioSubscription;
+  Stream audioStream;
+  int sampleRate = 44100;
+  IOSink _sink;
+  StreamController<List<double>> audioFFT;
   bool isRecording = false;
-  bool isPlaying = false;
-  StreamSubscription waveformSubscription;
-  StreamSubscription fftSubscription;
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+    init();
   }
 
   @override
   void dispose() {
-    audioVisualizer.dispose();
-    player.dispose();
+    cleanUp();
     super.dispose();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-
-    // permission
+  Future<void> init() async {
     var status = await Permission.microphone.request();
     if (status != PermissionStatus.granted) {
       throw Exception('Microphone permission not granted');
     }
+  }
 
-
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      platformVersion = await audioVisualizer.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
+  Future<void> cleanUp() async {
+    await _audioSubscription?.cancel();
+    await _sink?.close();
+    await audioFFT?.close();
     setState(() {
-      _platformVersion = platformVersion;
+      audioFFT = null;
+      _audioSubscription = null;
+      _sink = null;
     });
   }
 
+  Future<IOSink> _createFile() async {
+    var tempDir = await getTemporaryDirectory();
+    var outputFile = File('${tempDir.path}/sound.pcm');
+    if (outputFile.existsSync()) {
+      await outputFile.delete();
+    }
+    return outputFile.openWrite();
+  }
 
-  Future<void> play() async {
-    var duration = await player.setUrl('https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_700KB.mp3');
-    player.play();
-    await Future.doWhile(() => player.androidAudioSessionId==null);
-    assert(player.androidAudioSessionId!=null);
-
-    audioVisualizer.deregisterTap();
-    audioVisualizer.registerTap(player.androidAudioSessionId);
-    waveformSubscription?.cancel();
-    waveformSubscription = audioVisualizer.waveform.stream.listen((event) {
-      print('[WAVE] sampling rate ${event.samplingRate} buffer ${event.buffer?.length ?? 'null'}');
-    });
-
-    fftSubscription?.cancel();
-    fftSubscription = audioVisualizer.fft.stream.listen((event) {
-      print('[FFT] sampling rate ${event.samplingRate} buffer ${event.buffer?.length ?? 'null'}');
-    });
-
-    setState(() {
-      isPlaying = true;
-    });
+  Future<String> _readAsBase64() async {
+    var tempDir = await getTemporaryDirectory();
+    var inputFile = File('${tempDir.path}/sound.pcm');
+    assert(inputFile.existsSync());
+    final buffer = await inputFile.readAsBytes();
+    return base64.encode(buffer);
   }
 
   Future<void> stop() async {
-    await player.stop();
-    waveformSubscription?.cancel();
-    fftSubscription?.cancel();
-    audioVisualizer.deregisterTap();
+    await cleanUp();
     setState(() {
-      isPlaying = false;
+      isRecording = false;
+    });
+  }
+
+  Future<void> record() async {
+    // clean old resource
+    await cleanUp();
+
+    // new
+    _sink = await _createFile();
+    audioStream = await MicStream.microphone(
+      audioSource: AudioSource.DEFAULT,
+      sampleRate: sampleRate,
+      channelConfig: ChannelConfig.CHANNEL_IN_MONO,
+      audioFormat: AudioFormat.ENCODING_PCM_16BIT,
+    );
+    sampleRate = (await MicStream.sampleRate).ceil();
+    final visualizer = AudioVisualizer(
+      windowSize: await MicStream.bufferSize,
+      bandType: BandType.EightBand,
+      sampleRate: sampleRate,
+      zeroHzScale: 0.0,
+    );
+    audioFFT = StreamController<List<double>>();
+    _audioSubscription = audioStream.listen((buffer) {
+      if (buffer != null) {
+        final samples = buffer as List<int>;
+        _sink.add(samples);
+        audioFFT.add(visualizer.transform(samples.map((e) => e.toDouble()).toList()));
+      }
+    });
+
+    setState(() {
+      isRecording = true;
     });
   }
 
@@ -105,10 +119,37 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('Audio Visualizer Demo'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: audioFFT != null
+              ? StreamBuilder(
+                  stream: audioFFT.stream,
+                  builder: (context, snapshot) {
+                    var temp = snapshot.data as List<double>;
+                    var wave = List<double>.filled(temp.length, 0, growable: false);
+                    if (temp != null) {
+                      for (int i = 0; i < temp.length; i++) {
+                        var value = temp[i];
+                        value = 128 - (50 + (20 * math.log(value) / math.ln10));
+                        wave[i] = value;
+                      }
+                    }
+                    return Container(
+                      child: CustomPaint(
+                        painter: BarVisualizer(
+                          waveData: wave.map((e) => e.round()).toList(),
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                          color: Colors.pinkAccent,
+                          density: wave.length,
+                        ),
+                        child: new Container(),
+                      ),
+                    );
+                  },
+                )
+              : Container(),
         ),
         floatingActionButton: Column(
           mainAxisSize: MainAxisSize.min,
@@ -119,25 +160,25 @@ class _MyAppState extends State<MyApp> {
               backgroundColor: Colors.red,
               onPressed: () {
                 if (isRecording) {
-                  //stopRecord();
-                } else {
-                  //startRecord();
-                }
-              },
-            ),
-            SizedBox(height: 10),
-            FloatingActionButton(
-              // isExtended: true,
-              child: Icon(isPlaying ? Icons.stop_rounded : Icons.play_arrow),
-              backgroundColor: Colors.amber,
-              onPressed: () {
-                if (isPlaying) {
                   stop();
                 } else {
-                  play();
+                  record();
                 }
               },
             ),
+            // SizedBox(height: 10),
+            // FloatingActionButton(
+            //   // isExtended: true,
+            //   child: Icon(isPlaying ? Icons.stop_rounded : Icons.play_arrow),
+            //   backgroundColor: Colors.amber,
+            //   onPressed: () {
+            //     if (isPlaying) {
+            //       stop();
+            //     } else {
+            //       play();
+            //     }
+            //   },
+            // ),
           ],
         ),
       ),

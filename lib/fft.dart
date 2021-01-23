@@ -10,13 +10,12 @@ class FFT {
     }
 
     final int length = input.length;
-    assert(_isPowerOfTwo(length), 'lenght must be power of 2');
+    assert(_isPowerOfTwo(length), 'length must be power of 2');
     final int half = length ~/ 2;
     final double sign = inverse == true ? -1.0 : 1.0;
     final result = List<Complex>(length);
     final factorExp = (-2.0 * math.pi / length) * sign;
 
-    // even
     final evens = List<Complex>(half);
     final odds = List<Complex>(half);
     for (int i = 0; i < half; i++) {
@@ -49,5 +48,33 @@ class FFT {
 
   static bool _isPowerOfTwo(int input) {
     return input != 0 && (input & (input - 1)) == 0;
+  }
+
+  static List<int> fromDoubleToInt(List<double> input) {
+    return input.map((e) => scale(e,0.0,1.0,0,255).round()).toList();
+  }
+
+  static List<double> scaleAmplitude(List<Complex> input, int size) {
+    final double factor = (1.0 / size);
+    final List<double> buffer = input
+        .map((e) {
+      double amp = factor * e.abs();
+      //assert(amp <= 255.0);
+      double value = amp.roundToDouble().clamp(0.0, 255.0);
+      return scale(value, 0.0, 255, 0.0, 1.0);
+    })
+        .skip(0)
+        .take(input.length ~/ 2)
+        .toList();
+
+    return buffer;
+  }
+
+  static double scale(double k, double minX, double maxX, double a, double b) {
+    return a + ((k - minX) * (b - a) / (maxX - minX));
+  }
+
+  static double logScale(double k) {
+    return 10 * math.log(k) / math.ln10;
   }
 }

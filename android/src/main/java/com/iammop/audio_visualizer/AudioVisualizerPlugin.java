@@ -20,13 +20,11 @@ public class AudioVisualizerPlugin implements FlutterPlugin, MethodCallHandler {
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
     /// when the Flutter Engine is detached from the Activity
     private MethodChannel channel;
-    private AudioVisualizer audioVisualizer;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
         channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "audio_visualizer");
         channel.setMethodCallHandler(this);
-        audioVisualizer = new AudioVisualizer(channel);
     }
 
     @Override
@@ -35,13 +33,6 @@ public class AudioVisualizerPlugin implements FlutterPlugin, MethodCallHandler {
         switch (call.method) {
             case "getPlatformVersion":
                 result.success("Android " + android.os.Build.VERSION.RELEASE);
-                break;
-            case "registerTap":
-                int sessionID = (int) Objects.requireNonNull(call.argument("sessionId"));
-                registerTap(sessionID);
-                break;
-            case "deregisterTap":
-                deregisterTap();
                 break;
             default:
                 result.notImplemented();
@@ -53,12 +44,4 @@ public class AudioVisualizerPlugin implements FlutterPlugin, MethodCallHandler {
         channel.setMethodCallHandler(null);
     }
 
-    private void registerTap(int sessionId) {
-        if (audioVisualizer.isActive()) return;
-        audioVisualizer.registerTap(sessionId);
-    }
-
-    private void deregisterTap() {
-        audioVisualizer.deregisterTap();
-    }
 }
