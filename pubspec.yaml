@@ -1,5 +1,5 @@
 name: audio_visualizer
-description: Audio Visualizer For Flutter
+description: Pure dart audio visualizer for android and ios
 version: 0.1.0
 repository: https://github.com/Eittipat/audio_visualizer
 
