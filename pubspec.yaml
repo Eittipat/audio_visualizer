@@ -1,7 +1,7 @@
 name: audio_visualizer
-description: A new flutter plugin project.
-version: 0.0.1
-author:
+description: Audio Visualizer For Flutter
+version: 0.1.0
+author: iammop
 homepage:
 
 environment:
