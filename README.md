@@ -13,7 +13,7 @@ For sample.pcm https://file-examples-com.github.io/uploads/2017/11/file_example_
 
 ## Getting Started
 
-You should look at complete at [example](https://github.com/Eittipat/audio_visualizer/blob/master/example). It demostrates bar visualizer from microphone and music (pcm)
+You should look at [example](https://github.com/Eittipat/audio_visualizer/blob/master/example). It demostrates bar visualizer from microphone and music (pcm)
 
 ![The example app running in Android](https://github.com/Eittipat/audio_visualizer/blob/master/example/demo.gif?raw=true)
 
