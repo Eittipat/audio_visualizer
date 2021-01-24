@@ -24,9 +24,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const int bufferSize = 1024;
+  static const int bufferSize = 2048;
   static const int sampleRate = 44100;
-  static const BandType bandType = BandType.EightBand;
+
+  BandType bandType = BandType.EightBand;
 
   StreamSubscription _audioSubscription;
   Stream audioStream;
@@ -96,9 +97,11 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> stop() async {
+    await _player.stop();
     await cleanUp();
     setState(() {
       isRecording = false;
+      isPlaying = false;
     });
   }
 
@@ -127,7 +130,7 @@ class _MyAppState extends State<MyApp> {
     while (_player.isPlaying) {
       final block = _sampleAudio.sublist(offset, offset + bufferSize);
       final promise = _player.feed(Uint8List.fromList(block));
-      audioFFT.add(visualizer.transform(block.map((e) => e.toDouble()).toList()));
+      audioFFT.add(visualizer.transform(block));
       await promise;
       offset += bufferSize;
       index++;
@@ -148,9 +151,9 @@ class _MyAppState extends State<MyApp> {
     );
     final visualizer = AudioVisualizer(
       windowSize: bufferSize,
-      bandType:bandType,
+      bandType: bandType,
       sampleRate: sampleRate,
-      zeroHzScale:  0.05,
+      zeroHzScale: 0.05,
       fallSpeed: 0.08,
       sensibility: 8.0,
     );
@@ -159,7 +162,7 @@ class _MyAppState extends State<MyApp> {
       if (buffer != null) {
         final samples = buffer as List<int>;
         _sink.add(samples);
-        audioFFT.add(visualizer.transform(samples.map((e) => e.toDouble()).toList()));
+        audioFFT.add(visualizer.transform(samples, minRange: 0, maxRange: 255));
       }
     });
 
@@ -175,42 +178,67 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Audio Visualizer Demo'),
         ),
-        body: Center(
-          child: audioFFT != null
-              ? StreamBuilder(
-                  stream: audioFFT.stream,
-                  builder: (context, snapshot) {
-                    var temp = snapshot.data as List<double>;
-                    var wave = List<double>.filled(temp?.length ?? 0, 0, growable: false);
-                    if (temp != null) {
-                      double min = double.infinity;
-                      double max = double.negativeInfinity;
-                      for (int i = 0; i < temp.length; i++) {
-                        var value = temp[i];
-                        value = (20 * math.log(value) / math.ln10);
-                        if (value.isFinite && value > max) max = value;
-                        if (value.isFinite && value < min) min = value;
-                        wave[i] = value;
-                      }
-                      int coeff = (min.abs()+max.abs()).round();
-                      wave = wave.map((e) => ((coeff+e)/100.0).clamp(0.0, 1.0).toDouble()).toList();
-
+        body: Container(
+          child: Column(
+            children: [
+              Container(
+                child: DropdownButton(
+                  isExpanded: true,
+                  value: bandType,
+                  itemHeight: 75,
+                  onChanged: (value) async {
+                    bandType = value;
+                    if (isPlaying) {
+                      await stop();
+                      await play();
+                      return;
                     }
-                    return Container(
-                      child: CustomPaint(
-                        painter: BarVisualizer(
-                          waveData: wave,
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height,
-                          color: Colors.pinkAccent,
-                          density: wave.length,
-                        ),
-                        child: new Container(),
-                      ),
-                    );
+
+                    if (isRecording) {
+                      await stop();
+                      await record();
+                    }
                   },
-                )
-              : Container(),
+                  items: BandType.values
+                      .map(
+                        (e) => DropdownMenuItem(
+                          value: e,
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 25),
+                            child: Text(e.toString()),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: StreamBuilder(
+                    stream: audioFFT?.stream ?? null,
+                    builder: (context, snapshot) {
+                      if (snapshot.data == null) return Container();
+
+                      final buffer = snapshot.data as List<double>;
+                      final wave = buffer.map((e) => e-0.25).toList();
+
+                      return Container(
+                        child: CustomPaint(
+                          painter: BarVisualizer(
+                            waveData: wave,
+                            color: Colors.pinkAccent,
+                            density: wave.length,
+                            gap: 2,
+                          ),
+                          child: new Container(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         floatingActionButton: Column(
           mainAxisSize: MainAxisSize.min,
@@ -230,16 +258,13 @@ class _MyAppState extends State<MyApp> {
             SizedBox(height: 10),
             FloatingActionButton(
               // isExtended: true,
-              child: Icon(isPlaying ? Icons.stop_rounded : Icons.play_arrow),
-              backgroundColor: Colors.amber,
+              child: Icon(isPlaying ? Icons.stop_rounded : Icons.music_note),
+              backgroundColor: Colors.blue,
               onPressed: () async {
                 if (!isPlaying) {
                   await play();
                 } else {
-                  await _player.stop();
-                  setState(() {
-                    isPlaying = false;
-                  });
+                  await stop();
                 }
               },
             ),

@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'package:complex/complex.dart';
 
 import 'fft.dart';
@@ -7,7 +8,6 @@ enum BandType { FourBand, FourBandVisual, EightBand, TenBand, TwentySixBand, Thi
 
 class AudioVisualizer {
   // https://github.com/keijiro/unity-audio-spectrum/blob/master/AudioSpectrum.cs
-  List<double> _samples;
   final BandType bandType;
   final int sampleRate;
   final double zeroHzScale;
@@ -82,55 +82,50 @@ class AudioVisualizer {
   void reset() {
     final band = middleFrequenciesForBands[bandType.index];
     int bandSize = band.length;
-    _samples = List<double>.filled(windowSize, 0.0, growable: false);
     levels = List<double>.filled(bandSize, 0.0, growable: false);
     peakLevels = List<double>.filled(bandSize, 0.0, growable: false);
     meanLevels = List<double>.filled(bandSize, 0.0, growable: false);
   }
 
-  int freqToSpectrumIndex(double freq) {
+  int freqToSpectrumIndex(double freq, int N) {
     // freq = index * (Fs / N)
-    int n = windowSize~/2;
-    int i = (freq / (sampleRate / n)).floor();
-    return i.clamp(0, n - 1);
+    int i = (freq / (sampleRate / N)).floor();
+    return i.clamp(0, N - 1);
   }
 
   DateTime lastDateTime;
   double maxScale = 0.0;
 
-  List<double> transform(List<double> audio) {
-    final middlefrequencies = middleFrequenciesForBands[bandType.index];
-    var bandwidth = bandwidthForBands[bandType.index];
+  List<double> transform(List<int> audio, {int minRange = 0, int maxRange = 255}) {
+    final frequencies = middleFrequenciesForBands[bandType.index];
+    final bandwidth = bandwidthForBands[bandType.index];
 
-    // padding audio to min length
-    // final minSampleSize = freqToSpectrumIndex(middlefrequencies.last * bandwidth)*2;
-    // final actualLength = FFT.roundToPowerOfTwo(math.max(audio.length, minSampleSize));
-    // audio = FFT.padToSize(audio,actualLength);
-    final actualLength =audio.length;
+    // convert to complex number with power of two
+    final input = FFT.from(audio.map((e) => e.toDouble()).toList(), padding: true);
+    final N = input.length;
+    final coeffs = FFT.transform(input, inverse: false);
+    // scale magnitude to amplitude
+    var samples = FFT.magnitudeToAmplitude(coeffs, false, minRange.toDouble(), maxRange.toDouble(), N);
+    // scale 0 Hz coefficient
+    samples[0] = samples[0] * zeroHzScale;
+    // take half
+    samples = samples.take(N ~/ 2).toList();
 
-    final temp = FFT.transform(FFT.from(audio, padding: true), inverse: false);
-    windowSize = temp.length;
-    _samples = FFT.scaleAmplitude(temp, actualLength);
-    _samples[0] = _samples[0] * zeroHzScale; // discard 0 hz
-    //_samples = FFT.padToSize(_samples, windowSize);
-    assert(_samples.length == windowSize ~/ 2);
-
+    // compute visualizer
     if (lastDateTime == null) lastDateTime = DateTime.now();
     final now = DateTime.now();
     double delta = (now.difference(lastDateTime).inMilliseconds / 1000.0);
     lastDateTime = now;
 
-
-    var falldown = fallSpeed * delta;
-    var filter = math.exp(-sensibility * delta);
-
+    final falldown = fallSpeed * delta;
+    final filter = math.exp(-sensibility * delta);
     for (var bi = 0; bi < levels.length; bi++) {
-      int imin = freqToSpectrumIndex(middlefrequencies[bi] / bandwidth);
-      int imax = freqToSpectrumIndex(middlefrequencies[bi] * bandwidth);
+      int imin = freqToSpectrumIndex(frequencies[bi] / bandwidth, N~/2);
+      int imax = freqToSpectrumIndex(frequencies[bi] * bandwidth, N~/2);
 
       var bandMax = 0.0;
       for (var fi = imin; fi <= imax; fi++) {
-        bandMax = math.max(bandMax, _samples[fi]);
+        bandMax = math.max(bandMax, samples[fi]);
       }
 
       levels[bi] = bandMax;
@@ -138,6 +133,21 @@ class AudioVisualizer {
       meanLevels[bi] = bandMax - (bandMax - meanLevels[bi]) * filter;
     }
 
-    return List.unmodifiable(meanLevels);
+    // convert to dB
+    var wave = List<double>.filled(meanLevels.length, 0, growable: false);
+    double min = double.infinity;
+    double max = double.negativeInfinity;
+    for (int i = 0; i < meanLevels.length; i++) {
+      var value = meanLevels[i];
+      value = value != 0 ? FFT.logScale(value) : 0;
+      assert(value.isFinite);
+      wave[i] = value;
+
+      if (value < min) min = value;
+      if (value > max) max = value;
+    }
+    double coeff = (min.abs() + max.abs());
+    wave = wave.map((e) => ((coeff + e) / 100.0).clamp(0.0, 1.0).toDouble()).toList();
+    return List.unmodifiable(wave);
   }
 }

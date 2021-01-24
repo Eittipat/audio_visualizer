@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:complex/complex.dart';
 
 class FFT {
+
   static List<Complex> transform(List<Complex> input, {bool inverse = false}) {
     if (input.length == 1) {
       return <Complex>[input[0]];
@@ -63,22 +64,15 @@ class FFT {
     return math.pow(2, (math.log(input)/math.log(2)).ceil());
   }
 
-  static List<int> fromDoubleToInt(List<double> input) {
-    return input.map((e) => scale(e,0.0,1.0,0,255).round()).toList();
-  }
-
-  static List<double> scaleAmplitude(List<Complex> input, int size) {
+  static List<double> magnitudeToAmplitude(List<Complex> input, bool normalize, double min,double max, int size, ) {
     final double factor = (1.0 / size);
     final List<double> buffer = input
         .map((e) {
       double amp = factor * e.abs();
-      //assert(amp <= 255.0);
-      double value = amp.roundToDouble().clamp(0.0, 255.0);
-      return scale(value, 0.0, 255, 0.0, 1.0);
-    })
-        .skip(0)
-        .take(input.length ~/ 2)
-        .toList();
+      assert(amp <= max);
+      double value = amp.roundToDouble().clamp(min,max);
+      return normalize? scale(value, min,max, 0.0, 1.0):value;
+    }).toList();
 
     return buffer;
   }
@@ -88,6 +82,6 @@ class FFT {
   }
 
   static double logScale(double k) {
-    return 10 * math.log(k) / math.ln10;
+    return 20 * math.log(k) / math.ln10;
   }
 }
