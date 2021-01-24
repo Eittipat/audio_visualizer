@@ -6,14 +6,16 @@ So it should work on any platforms!
 
 ## Credit
 For ui https://github.com/iamSahdeep/FlutterVisualizers
+
 For frequency bands https://github.com/keijiro/unity-audio-spectrum/blob/master/AudioSpectrum.cs
+
 For sample.pcm https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_700KB.mp3
 
 ## Getting Started
 
-You should look at complete at [example](https://github.com/Eittipat/audio_visualizer/tree/master/example). It demostrates bar visualizer from microphone and music (pcm)
+You should look at complete at [example](https://github.com/Eittipat/audio_visualizer/blob/master/example). It demostrates bar visualizer from microphone and music (pcm)
 
-![](https://github.com/Eittipat/audio_visualizer/tree/master/example/demo.gif)
+![The example app running in Android](https://github.com/Eittipat/audio_visualizer/blob/master/example/demo.gif?raw=true)
 
 ```
 // Import package
