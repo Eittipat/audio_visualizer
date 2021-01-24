@@ -4,7 +4,7 @@ This package transforms any integer stream into target frequency bands.
 Because this package just do a computation. 
 So it should work on any platforms!
 
-## Credit
+## Credits
 For ui https://github.com/iamSahdeep/FlutterVisualizers
 
 For frequency bands https://github.com/keijiro/unity-audio-spectrum/blob/master/AudioSpectrum.cs
