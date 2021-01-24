@@ -6,15 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="dec43d7b-d210-4a8b-8933-55144fc0a883" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/assets/sample.pcm" beforeDir="false" afterPath="$PROJECT_DIR$/example/assets/sample.pcm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/audio_visualizer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/audio_visualizer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/fft.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/fft.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/visualizers/bar_visualizer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/visualizers/bar_visualizer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/visualizers/circular_bar_visualizer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/visualizers/circular_bar_visualizer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/visualizers/circular_line_visualizer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/visualizers/circular_line_visualizer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/visualizers/line_bar_visualizer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/visualizers/line_bar_visualizer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/visualizers/line_visualizer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/visualizers/line_visualizer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/visualizers/multi_wave_visualizer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/visualizers/multi_wave_visualizer.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +34,9 @@
     <property name="show.migrate.to.gradle.popup" value="false" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\mophe\Documents\Workspace\Flutter\audio_visualizer\example\assets" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\mophe\Documents\Workspace\Flutter\audio_visualizer\example\assets" />
     </key>
@@ -64,11 +61,19 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
+    <state x="712" y="321" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1611499675427">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="712" y="321" key="#com.intellij.fileTypes.FileTypeChooser/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611499675427" />
     <state x="1338" y="336" key="#xdebugger.evaluate" timestamp="1611497069724">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="1338" y="336" key="#xdebugger.evaluate/0.0.1920.1040/-768.0.768.1326/1920.0.1920.1040@0.0.1920.1040" timestamp="1611418750541" />
     <state x="1338" y="336" key="#xdebugger.evaluate/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611497069724" />
+    <state x="754" y="266" key="AndroidProcessChooserDialog" timestamp="1611499670199">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="754" y="266" key="AndroidProcessChooserDialog/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611499670199" />
     <state width="563" height="466" key="DebuggerActiveHint" timestamp="1611497865391">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -78,46 +83,46 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="-195" y="184" width="1736" height="856" key="DiffContextDialog/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611498985450" />
-    <state width="1877" height="360" key="GridCell.Tab.0.bottom" timestamp="1611498629512">
+    <state width="1877" height="360" key="GridCell.Tab.0.bottom" timestamp="1611499835640">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="191" key="GridCell.Tab.0.bottom/0.0.1920.1040/-768.0.768.1326/1920.0.1920.1040@0.0.1920.1040" timestamp="1611420215927" />
-    <state width="1877" height="360" key="GridCell.Tab.0.bottom/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611498629512" />
-    <state width="1877" height="360" key="GridCell.Tab.0.center" timestamp="1611498629512">
+    <state width="1877" height="360" key="GridCell.Tab.0.bottom/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611499835640" />
+    <state width="1877" height="360" key="GridCell.Tab.0.center" timestamp="1611499835640">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="191" key="GridCell.Tab.0.center/0.0.1920.1040/-768.0.768.1326/1920.0.1920.1040@0.0.1920.1040" timestamp="1611420215927" />
-    <state width="1877" height="360" key="GridCell.Tab.0.center/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611498629512" />
-    <state width="1877" height="360" key="GridCell.Tab.0.left" timestamp="1611498629512">
+    <state width="1877" height="360" key="GridCell.Tab.0.center/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611499835640" />
+    <state width="1877" height="360" key="GridCell.Tab.0.left" timestamp="1611499835640">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="191" key="GridCell.Tab.0.left/0.0.1920.1040/-768.0.768.1326/1920.0.1920.1040@0.0.1920.1040" timestamp="1611420215927" />
-    <state width="1877" height="360" key="GridCell.Tab.0.left/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611498629512" />
-    <state width="1877" height="360" key="GridCell.Tab.0.right" timestamp="1611498629512">
+    <state width="1877" height="360" key="GridCell.Tab.0.left/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611499835640" />
+    <state width="1877" height="360" key="GridCell.Tab.0.right" timestamp="1611499835640">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="191" key="GridCell.Tab.0.right/0.0.1920.1040/-768.0.768.1326/1920.0.1920.1040@0.0.1920.1040" timestamp="1611420215927" />
-    <state width="1877" height="360" key="GridCell.Tab.0.right/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611498629512" />
-    <state width="1877" height="360" key="GridCell.Tab.1.bottom" timestamp="1611498629513">
+    <state width="1877" height="360" key="GridCell.Tab.0.right/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611499835640" />
+    <state width="1877" height="360" key="GridCell.Tab.1.bottom" timestamp="1611499835640">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="191" key="GridCell.Tab.1.bottom/0.0.1920.1040/-768.0.768.1326/1920.0.1920.1040@0.0.1920.1040" timestamp="1611420215927" />
-    <state width="1877" height="360" key="GridCell.Tab.1.bottom/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611498629513" />
-    <state width="1877" height="360" key="GridCell.Tab.1.center" timestamp="1611498629513">
+    <state width="1877" height="360" key="GridCell.Tab.1.bottom/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611499835640" />
+    <state width="1877" height="360" key="GridCell.Tab.1.center" timestamp="1611499835640">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="191" key="GridCell.Tab.1.center/0.0.1920.1040/-768.0.768.1326/1920.0.1920.1040@0.0.1920.1040" timestamp="1611420215927" />
-    <state width="1877" height="360" key="GridCell.Tab.1.center/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611498629513" />
-    <state width="1877" height="360" key="GridCell.Tab.1.left" timestamp="1611498629513">
+    <state width="1877" height="360" key="GridCell.Tab.1.center/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611499835640" />
+    <state width="1877" height="360" key="GridCell.Tab.1.left" timestamp="1611499835640">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="191" key="GridCell.Tab.1.left/0.0.1920.1040/-768.0.768.1326/1920.0.1920.1040@0.0.1920.1040" timestamp="1611420215927" />
-    <state width="1877" height="360" key="GridCell.Tab.1.left/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611498629513" />
-    <state width="1877" height="360" key="GridCell.Tab.1.right" timestamp="1611498629513">
+    <state width="1877" height="360" key="GridCell.Tab.1.left/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611499835640" />
+    <state width="1877" height="360" key="GridCell.Tab.1.right" timestamp="1611499835640">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="191" key="GridCell.Tab.1.right/0.0.1920.1040/-768.0.768.1326/1920.0.1920.1040@0.0.1920.1040" timestamp="1611420215927" />
-    <state width="1877" height="360" key="GridCell.Tab.1.right/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611498629513" />
+    <state width="1877" height="360" key="GridCell.Tab.1.right/1920.0.1920.1040/0.0.1920.1040/-768.0.768.1326@0.0.1920.1040" timestamp="1611499835640" />
     <state x="612" y="222" key="RollbackChangesDialog" timestamp="1611408231789">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>

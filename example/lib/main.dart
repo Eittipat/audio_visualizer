@@ -126,14 +126,22 @@ class _MyAppState extends State<MyApp> {
 
     audioFFT = StreamController<List<double>>();
     int offset = 0;
-    int index = 0;
+    bool isEnd =false;
     while (_player.isPlaying) {
-      final block = _sampleAudio.sublist(offset, offset + bufferSize);
+      var end = offset + bufferSize;
+      if(end>=_sampleAudio.length) {
+        isEnd = true;
+        end = _sampleAudio.length;
+      }
+      final block = _sampleAudio.sublist(offset, end);
       final promise = _player.feed(Uint8List.fromList(block));
       audioFFT.add(visualizer.transform(block));
       await promise;
       offset += bufferSize;
-      index++;
+      if(isEnd) {
+        await stop();
+        break;
+      }
     }
   }
 
@@ -188,6 +196,9 @@ class _MyAppState extends State<MyApp> {
                   itemHeight: 75,
                   onChanged: (value) async {
                     bandType = value;
+                    setState(() {
+
+                    });
                     if (isPlaying) {
                       await stop();
                       await play();
