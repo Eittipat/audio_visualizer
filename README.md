@@ -5,11 +5,10 @@ Because this package just do a computation.
 So it should work on any platforms!
 
 ## Credits
+
 For ui https://github.com/iamSahdeep/FlutterVisualizers
 
-For frequency bands https://github.com/keijiro/unity-audio-spectrum/blob/master/AudioSpectrum.cs
-
-For sample.pcm https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_700KB.mp3
+For frequency bands https://github.com/keijiro/unity-audio-spectrum
 
 ## Getting Started
 
