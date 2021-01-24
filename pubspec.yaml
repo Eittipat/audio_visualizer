@@ -1,8 +1,7 @@
 name: audio_visualizer
 description: Audio Visualizer For Flutter
 version: 0.1.0
-author: iammop
-homepage:
+repository: https://github.com/Eittipat/audio_visualizer
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
