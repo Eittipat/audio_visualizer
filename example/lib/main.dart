@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:audio_visualizer/fft.dart';
 import 'package:audio_visualizer/visualizers/visualizer.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -58,7 +57,10 @@ class _MyAppState extends State<MyApp> {
       throw Exception('Microphone permission not granted');
     }
 
-    _sampleAudio = (await rootBundle.load('assets/sample.pcm')).buffer.asUint8List().toList();
+    _sampleAudio = (await rootBundle.load('assets/sample.pcm'))
+        .buffer
+        .asUint8List()
+        .toList();
     _player = RawSoundPlayer();
     await _player.initialize(
       bufferSize: bufferSize,
@@ -126,10 +128,10 @@ class _MyAppState extends State<MyApp> {
 
     audioFFT = StreamController<List<double>>();
     int offset = 0;
-    bool isEnd =false;
+    bool isEnd = false;
     while (_player.isPlaying) {
       var end = offset + bufferSize;
-      if(end>=_sampleAudio.length) {
+      if (end >= _sampleAudio.length) {
         isEnd = true;
         end = _sampleAudio.length;
       }
@@ -138,7 +140,7 @@ class _MyAppState extends State<MyApp> {
       audioFFT.add(visualizer.transform(block));
       await promise;
       offset += bufferSize;
-      if(isEnd) {
+      if (isEnd) {
         await stop();
         break;
       }
@@ -196,9 +198,7 @@ class _MyAppState extends State<MyApp> {
                   itemHeight: 75,
                   onChanged: (value) async {
                     bandType = value;
-                    setState(() {
-
-                    });
+                    setState(() {});
                     if (isPlaying) {
                       await stop();
                       await play();
@@ -231,7 +231,7 @@ class _MyAppState extends State<MyApp> {
                       if (snapshot.data == null) return Container();
 
                       final buffer = snapshot.data as List<double>;
-                      final wave = buffer.map((e) => e-0.25).toList();
+                      final wave = buffer.map((e) => e - 0.25).toList();
 
                       return Container(
                         child: CustomPaint(
