@@ -106,9 +106,9 @@ class AudioVisualizer {
     1.122 // 2^(1/6)
   ];
 
-  List<double> levels;
-  List<double> peakLevels;
-  List<double> meanLevels;
+  late List<double> levels;
+  late List<double> peakLevels;
+  late List<double> meanLevels;
 
   AudioVisualizer({
     this.windowSize = 2048,
@@ -135,7 +135,7 @@ class AudioVisualizer {
     return i.clamp(0, N - 1);
   }
 
-  DateTime lastDateTime;
+  DateTime? lastDateTime;
   double maxScale = 0.0;
 
   List<double> transform(List<int> audio,
@@ -159,7 +159,7 @@ class AudioVisualizer {
     // compute visualizer
     if (lastDateTime == null) lastDateTime = DateTime.now();
     final now = DateTime.now();
-    double delta = (now.difference(lastDateTime).inMilliseconds / 1000.0);
+    double delta = (now.difference(lastDateTime!).inMilliseconds / 1000.0);
     lastDateTime = now;
 
     final falldown = fallSpeed * delta;

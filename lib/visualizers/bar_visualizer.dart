@@ -8,7 +8,7 @@ class BarVisualizer extends CustomPainter {
   final int density;
   final int gap;
 
-  BarVisualizer({@required this.waveData, @required this.color, this.density = 100, this.gap = 2})
+  BarVisualizer({required this.waveData, required this.color, this.density = 100, this.gap = 2})
       : wavePaint = new Paint()
           ..color = color.withOpacity(1.0)
           ..style = PaintingStyle.fill,

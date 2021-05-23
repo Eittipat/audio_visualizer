@@ -5,20 +5,20 @@ import 'package:complex/complex.dart';
 
 class FFT {
 
-  static List<Complex> transform(List<Complex> input, {bool inverse = false}) {
+  static List<Complex?> transform(List<Complex?> input, {bool inverse = false}) {
     if (input.length == 1) {
-      return <Complex>[input[0]];
+      return <Complex?>[input[0]];
     }
 
     final int length = input.length;
     assert(isPowerOfTwo(length), 'length must be power of 2');
     final int half = length ~/ 2;
     final double sign = inverse == true ? -1.0 : 1.0;
-    final result = List<Complex>(length);
+    final result = List<Complex?>(length);
     final factorExp = (-2.0 * math.pi / length) * sign;
 
-    final evens = List<Complex>(half);
-    final odds = List<Complex>(half);
+    final evens = List<Complex?>(half);
+    final odds = List<Complex?>(half);
     for (int i = 0; i < half; i++) {
       evens[i] = input[2 * i];
       odds[i] = input[2 * i + 1];
@@ -29,17 +29,17 @@ class FFT {
 
     for (int k = 0; k < half; k++) {
       final factorK = factorExp * k;
-      final oddComponent = oddResult[k] * Complex(math.cos(factorK), math.sin(factorK));
-      result[k] = evenResult[k] + oddComponent;
-      result[k + half] = evenResult[k] - oddComponent;
+      final oddComponent = oddResult[k]! * Complex(math.cos(factorK), math.sin(factorK));
+      result[k] = evenResult[k]! + oddComponent;
+      result[k + half] = evenResult[k]! - oddComponent;
     }
     return result;
   }
 
-  static List<Complex> from(List<double> input, {bool padding = true, int size}) {
+  static List<Complex?> from(List<double> input, {bool padding = true, int? size}) {
     if (size != null) assert(size >= input.length && isPowerOfTwo(size), 'size must larger than input and must be power of two');
     final int length = padding ? (size == null ? roundToPowerOfTwo(input.length) : size) : input.length;
-    final output = List<Complex>(length);
+    final output = List<Complex?>(length);
     for (int i = 0; i < length; i++) {
       final double value = i >= input.length ? 0.0 : input[i];
       output[i] = Complex(value, 0.0);
@@ -47,8 +47,8 @@ class FFT {
     return output;
   }
 
-  static List<double> padToSize(List<double> input,int size) {
-    final output = List<double>(size);
+  static List<double?> padToSize(List<double> input,int size) {
+    final output = List<double?>(size);
     for (int i = 0; i < size; i++) {
       final double value = i >= input.length ? 0.0 : input[i];
       output[i] = value;
@@ -61,14 +61,14 @@ class FFT {
   }
 
   static int roundToPowerOfTwo(int input) {
-    return math.pow(2, (math.log(input)/math.log(2)).ceil());
+    return math.pow(2, (math.log(input)/math.log(2)).ceil()) as int;
   }
 
-  static List<double> magnitudeToAmplitude(List<Complex> input, bool normalize, double min,double max, int size, ) {
+  static List<double> magnitudeToAmplitude(List<Complex?> input, bool normalize, double min,double max, int size, ) {
     final double factor = (1.0 / size);
     final List<double> buffer = input
         .map((e) {
-      double amp = factor * e.abs();
+      double amp = factor * e!.abs();
       assert(amp <= max);
       double value = amp.roundToDouble().clamp(min,max);
       return normalize? scale(value, min,max, 0.0, 1.0):value;
