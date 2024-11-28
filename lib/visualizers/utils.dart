@@ -47,7 +47,7 @@ num hypotenuse(num x, num y) {
 }
 
 List<double> getMagnitudes(List<int> fft) {
-  if(fft.isEmpty) return [];
+  if (fft.isEmpty) return [];
   final n = fft.length;
   final magnitudes = List<double>.filled(n ~/ 2 + 1, 0);
   magnitudes[0] = fft[0].abs().toDouble();

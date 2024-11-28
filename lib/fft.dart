@@ -18,7 +18,6 @@
 //  - https://android.googlesource.com/platform/system/media/+/master/audio_utils/fixedfft.cpp
 //  - https://android.googlesource.com/platform/frameworks/av/+/android-5.1.1_r18/media/libmedia/Visualizer.cpp
 
-
 import 'dart:typed_data';
 
 const int kLogFftSize = 10;
@@ -330,7 +329,7 @@ int _mult(int a, int b) {
   a = int32(a);
   b = int32(b);
   final c = (((a >> 16) * (b >> 16) + int16(a) * int16(b)) & ~0xFFFF) |
-  ((((a >> 16) * int16(b) - int16(a) * (b >> 16)) >> 16) & 0xFFFF);
+      ((((a >> 16) * int16(b) - int16(a) * (b >> 16)) >> 16) & 0xFFFF);
   return int32(c);
 }
 
@@ -394,7 +393,7 @@ void fftReal(int n, Int32List v) {
   v[0] = _mult(~v[0], 0x80008000);
   v[m] = _half(v[m]);
 
-  for (int i = 1; i <n >> 1; ++i) {
+  for (int i = 1; i < n >> 1; ++i) {
     int x = _half(v[i]);
     int z = _half(v[n - i]);
     int y = (z - (x ^ 0xFFFF));
@@ -415,8 +414,8 @@ void doFft(List<int> fft, List<int> waveform) {
   for (int i = 0; i < captureSize; i += 2) {
     // Convert pairs of bytes to 32-bit integers
     // Note: Using bitwise operations ensures 32-bit arithmetic
-    workspace[i >> 1] = (((waveform[i] ^ 0x80) << 24) |
-    ((waveform[i + 1] ^ 0x80) << 8));
+    workspace[i >> 1] =
+        (((waveform[i] ^ 0x80) << 24) | ((waveform[i + 1] ^ 0x80) << 8));
     nonzero |= workspace[i >> 1];
   }
 

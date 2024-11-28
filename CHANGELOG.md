@@ -1,4 +1,4 @@
-## 0.2.0
+## 1.0.0
 
 * Rewrite the package from scratch, Add support for audio visualization
 

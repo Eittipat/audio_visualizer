@@ -15,8 +15,8 @@ class LineBarVisualizer extends CustomPainter {
     required this.color,
     this.gap = 2,
   }) : wavePaint = Paint()
-    ..color = color.withOpacity(1.0)
-    ..style = PaintingStyle.fill;
+          ..color = color.withOpacity(1.0)
+          ..style = PaintingStyle.fill;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -46,10 +46,12 @@ class LineBarVisualizer extends CustomPainter {
 
     for (int i = 0; i < density; i++) {
       // Calculate the data index, ensuring we don't exceed array bounds
-      final dataIndex = (i * samplingInterval).floor().clamp(0, data.length - 1);
+      final dataIndex =
+          (i * samplingInterval).floor().clamp(0, data.length - 1);
 
       // Scale the amplitude to [0-maxPixelAmplitude]
-      final scaledAmplitude = (data[dataIndex] / maxAmplitude) * maxPixelAmplitude;
+      final scaledAmplitude =
+          (data[dataIndex] / maxAmplitude) * maxPixelAmplitude;
 
       // Calculate bar position
       final barX = (i * barWidth) + (barWidth / 2);
@@ -60,16 +62,8 @@ class LineBarVisualizer extends CustomPainter {
 
       // Draw only if the bar would be visible
       if (barX >= 0 && barX <= size.width) {
-        canvas.drawLine(
-            Offset(barX, centerY),
-            Offset(barX, top),
-            wavePaint
-        );
-        canvas.drawLine(
-            Offset(barX, centerY),
-            Offset(barX, bottom),
-            wavePaint
-        );
+        canvas.drawLine(Offset(barX, centerY), Offset(barX, top), wavePaint);
+        canvas.drawLine(Offset(barX, centerY), Offset(barX, bottom), wavePaint);
       }
     }
   }

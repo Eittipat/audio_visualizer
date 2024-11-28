@@ -13,8 +13,8 @@ class MultiWaveVisualizer extends CustomPainter {
     required this.data,
     required this.color,
   }) : wavePaint = Paint()
-    ..color = color.withOpacity(0.75)
-    ..style = PaintingStyle.fill;
+          ..color = color.withOpacity(0.75)
+          ..style = PaintingStyle.fill;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -28,10 +28,12 @@ class MultiWaveVisualizer extends CustomPainter {
 
     // Create histograms for low and high frequencies
     // Using dynamic bucket count based on available width
-    final bucketCount = math.max((size.width / 20).floor(), 5); // Ensure minimum 5 buckets
+    final bucketCount =
+        math.max((size.width / 20).floor(), 5); // Ensure minimum 5 buckets
 
     final histogramLow = _createHistogram(data, bucketCount, 0, midPoint);
-    final histogramHigh = _createHistogram(data, bucketCount, midPoint, data.length);
+    final histogramHigh =
+        _createHistogram(data, bucketCount, midPoint, data.length);
 
     // Render both histograms
     _renderHistogram(canvas, size, histogramLow);
@@ -50,9 +52,11 @@ class MultiWaveVisualizer extends CustomPainter {
     // Create points for the smooth curve
     for (int i = 0; i < histogram.length - 1; ++i) {
       points[i * 4] = (i * widthPerSample).clamp(0.0, size.width);
-      points[i * 4 + 1] = (size.height * (1 - histogram[i])).clamp(0.0, size.height);
+      points[i * 4 + 1] =
+          (size.height * (1 - histogram[i])).clamp(0.0, size.height);
       points[i * 4 + 2] = ((i + 1) * widthPerSample).clamp(0.0, size.width);
-      points[i * 4 + 3] = (size.height * (1 - histogram[i + 1])).clamp(0.0, size.height);
+      points[i * 4 + 3] =
+          (size.height * (1 - histogram[i + 1])).clamp(0.0, size.height);
     }
 
     // Create and draw the path
@@ -65,10 +69,12 @@ class MultiWaveVisualizer extends CustomPainter {
 
     for (int i = 2; i < points.length - 4; i += 2) {
       path.cubicTo(
-          points[i - 2] + controlPointDistance, points[i - 1],
-          points[i] - controlPointDistance, points[i + 1],
-          points[i], points[i + 1]
-      );
+          points[i - 2] + controlPointDistance,
+          points[i - 1],
+          points[i] - controlPointDistance,
+          points[i + 1],
+          points[i],
+          points[i + 1]);
     }
 
     // Complete the path
@@ -78,7 +84,8 @@ class MultiWaveVisualizer extends CustomPainter {
     canvas.drawPath(path, wavePaint);
   }
 
-  List<double> _createHistogram(List<double> samples, int bucketCount, int start, int end) {
+  List<double> _createHistogram(
+      List<double> samples, int bucketCount, int start, int end) {
     if (start >= end || samples.isEmpty) return const [];
 
     final sampleCount = end - start;

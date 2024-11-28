@@ -65,9 +65,9 @@ class CircularBarVisualizer extends CustomPainter {
     // Calculate maximum safe amplitude that won't exceed canvas bounds
     // This ensures bars won't extend beyond the smaller dimension of the canvas
     double maxAmplitude = min(
-        (size.width / 2 - radius) * 0.8,  // 80% of available width space
-        (size.height / 2 - radius) * 0.8   // 80% of available height space
-    );
+        (size.width / 2 - radius) * 0.8, // 80% of available width space
+        (size.height / 2 - radius) * 0.8 // 80% of available height space
+        );
 
     for (int i = 0; i < data.length; i++) {
       // Scale the value relative to the maximum value and the safe amplitude

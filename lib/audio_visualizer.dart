@@ -254,10 +254,7 @@ class PCMVisualizer extends ChangeNotifier implements AudioVisualizer {
   void feed(Uint8List data) {
     final byteData = data.buffer.asByteData();
     final data16 = Int16List.view(
-        byteData.buffer,
-        byteData.offsetInBytes,
-        data.length ~/ 2
-    );
+        byteData.buffer, byteData.offsetInBytes, data.length ~/ 2);
 
     final input = List<int>.filled(1024, 0);
     final waveform = List<int>.filled(1024, 0);
@@ -278,7 +275,6 @@ class PCMVisualizer extends ChangeNotifier implements AudioVisualizer {
 abstract class AudioVisualizer implements ChangeNotifier {
   AudioVisualizerValue get value;
 }
-
 
 void debug(String tag, List<int> data) {
   print("$tag => max: ${data.reduce(max)}, min: ${data.reduce(min)}");
