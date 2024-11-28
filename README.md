@@ -5,7 +5,7 @@ A Flutter package for seamlessly visualizing audio from files, assets, HTTP stre
 
 Explore all usage examples in the [example directory](https://github.com/Eittipat/audio_visualizer/blob/master/example).
 
-https://github.com/user-attachments/assets/93fbea13-c84f-4bd8-ac25-4265891d2bb1
+![Demo App](https://github.com/Eittipat/audio_visualizer/blob/master/sample.gif?raw=true)
 
 ---
 
