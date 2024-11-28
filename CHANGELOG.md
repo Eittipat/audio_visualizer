@@ -1,3 +1,7 @@
+## 1.0.2
+
+* Fix minor changes in the package
+
 ## 1.0.1
 
 * Fix minor changes in the package
