@@ -1,3 +1,7 @@
+## 1.1.0
+
+* Refactor codes, Add rainbow visualizer
+
 ## 1.0.2
 
 * Fix minor changes in the package
