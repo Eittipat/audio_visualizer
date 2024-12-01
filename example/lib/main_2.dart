@@ -189,16 +189,11 @@ class _MyAppState extends State<MyApp> {
                     ListenableBuilder(
                       listenable: source,
                       builder: (context, child) {
-                        return AudioSpectrum(
-                          fftMagnitudes: getMagnitudes(source.value.fft),
-                          builder: (context, value, child) {
-                            return BarVisualizer(
-                              input: value.levels,
-                              color: Colors.greenAccent,
-                              backgroundColor: Colors.black,
-                              gap: 2,
-                            );
-                          },
+                        return BarVisualizer(
+                          input: getMagnitudes(source.value.fft),
+                          color: Colors.greenAccent,
+                          backgroundColor: Colors.black,
+                          gap: 2,
                         );
                       },
                     ),

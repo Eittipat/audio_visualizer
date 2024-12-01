@@ -1,6 +1,6 @@
 name: audio_visualizer
-description: Audio visualizer for Android and iOS
-version: 1.0.2
+description: A Flutter package for seamlessly visualizing audio from files, assets, HTTP streams, microphone input, and raw PCM16 data.
+version: 1.1.0
 repository: https://github.com/Eittipat/audio_visualizer
 homepage:
 

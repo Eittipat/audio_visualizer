@@ -5,7 +5,8 @@ A Flutter package for seamlessly visualizing audio from files, assets, HTTP stre
 
 Explore all usage examples in the [example directory](https://github.com/Eittipat/audio_visualizer/blob/master/example).
 
-![Demo App](https://github.com/Eittipat/audio_visualizer/blob/master/sample.gif?raw=true)
+![Demo App 1](https://github.com/Eittipat/audio_visualizer/blob/master/rainbow.gif?raw=true)
+![Demo App 2](https://github.com/Eittipat/audio_visualizer/blob/master/sample.gif?raw=true)
 
 ---
 
@@ -31,9 +32,6 @@ This package provides three major components:
 2. **PCMVisualizer**  
    For visualizing raw PCM16 data from custom sources.
 
-3. **VisualizerBuilder**  
-   A widget to build and customize visualizers.
-
 ---
 
 ## 🚀 Visualizer Styles and Bands
@@ -46,6 +44,7 @@ Elevate your app's aesthetic with four stunning, ready-to-use visualizer widgets
 - `CircleVisualizer`
 - `LineVisualizer`
 - `MultiWaveVisualizer`
+- `RainbowBlockVisualizer`
 
 ### Band Types
 
@@ -80,17 +79,17 @@ await audioPlayer.setDataSource("asset://assets/sample.mp3");
 await audioPlayer.play();
 
 // Visualize with BarVisualizer
-VisualizerBuilder(
-  controller: audioPlayer,
-  builder: (context, value, child) {
-    return BarVisualizer(
-      input: value.levels,
-      color: Colors.yellow,
-      backgroundColor: Colors.black,
-      gap: 2,
-    );
-  },
-);
+ListenableBuilder(
+   listenable: audioPlayer,
+   builder: (context, child) {
+      return BarVisualizer(
+         input: audioPlayer.value.waveform,
+         backgroundColor: Colors.black,
+         color: Colors.greenAccent,
+         gap: 2,
+      );
+   },
+),
 
 // Dispose VisualizerPlayer
 audioPlayer.dispose();
@@ -110,17 +109,17 @@ final pcmVisualizer = PCMVisualizer();
 pcmVisualizer.feed(rawPCM16Data);
 
 // Visualize with BarVisualizer
-VisualizerBuilder(
-  controller: pcmVisualizer,
-  builder: (context, value, child) {
-    return BarVisualizer(
-      input: value.levels,
-      color: Colors.yellow,
-      backgroundColor: Colors.black,
-      gap: 2,
-    );
-  },
-);
+ListenableBuilder(
+   listenable: pcmVisualizer,
+   builder: (context, child) {
+      return BarVisualizer(
+         input: pcmVisualizer.value.waveform,
+         backgroundColor: Colors.black,
+         color: Colors.greenAccent,
+         gap: 2,
+      );
+   },
+),
 
 // Dispose PCMVisualizer
 pcmVisualizer.dispose();

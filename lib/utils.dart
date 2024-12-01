@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-
 /// Calculates the hypotenuse of a right-angled triangle given the lengths of the other two sides.
 ///
 /// This function uses the Pythagorean theorem to compute the hypotenuse.
