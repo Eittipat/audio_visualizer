@@ -1,15 +1,15 @@
 // Original source code from
 // - https://github.com/iamSahdeep/FlutterVisualizers
 
-import 'package:flutter/rendering.dart';
+import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-class MultiWaveVisualizer extends CustomPainter {
+class _MultiWaveVisualizer extends CustomPainter {
   final List<double> data;
   final Color color;
   final Paint wavePaint;
 
-  MultiWaveVisualizer({
+  _MultiWaveVisualizer({
     required this.data,
     required this.color,
   }) : wavePaint = Paint()
@@ -129,5 +129,33 @@ class MultiWaveVisualizer extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
     return true;
+  }
+}
+
+class MultiWaveVisualizer extends StatelessWidget {
+  const MultiWaveVisualizer({
+    super.key,
+    required this.input,
+    this.gap = 2,
+    this.color = Colors.blue,
+    this.backgroundColor = Colors.transparent,
+  });
+
+  final Color color;
+  final Color backgroundColor;
+  final int gap;
+  final List<int> input;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: backgroundColor,
+      child: CustomPaint(
+        painter: _MultiWaveVisualizer(
+          data: input.map((e) => e.toDouble()).toList(),
+          color: color,
+        ),
+      ),
+    );
   }
 }

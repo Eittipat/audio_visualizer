@@ -44,8 +44,8 @@ class AudioVisualizerPlugin : FlutterPlugin, MethodCallHandler {
             }
 
             "play" -> {
-                val loop = call.argument<Boolean>("loop") ?: false
-                play(playerId, loop, result)
+                val looping = call.argument<Boolean>("looping") ?: false
+                play(playerId, looping, result)
             }
 
             "pause" -> {

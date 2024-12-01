@@ -138,10 +138,10 @@ class MiniAudioPlayer(
         }
     }
 
-    fun play(loop: Boolean) {
+    fun play(looping: Boolean) {
         if (mStatus == AudioStatus.READY || mStatus == AudioStatus.PAUSED || mStatus == AudioStatus.STOPPED) {
             if (!mPlayer.isPlaying) {
-                mPlayer.isLooping = loop
+                mPlayer.isLooping = looping
                 mPlayer.start()
                 mStatus = AudioStatus.PLAYING
                 enableVisualizer()

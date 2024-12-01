@@ -78,7 +78,7 @@ public class AudioVisualizerPlugin: NSObject, FlutterPlugin {
         result(nil)
     }
 
-    func play(playerId: String, loop:Bool,result: @escaping FlutterResult) {
+    func play(playerId: String, looping:Bool,result: @escaping FlutterResult) {
         guard let session = sessions[playerId] else {
             result(FlutterError(
                 code: "PLAYER_NOT_INITIALIZED",
@@ -87,7 +87,7 @@ public class AudioVisualizerPlugin: NSObject, FlutterPlugin {
             ))
             return
         }
-        session.play(loop: loop)
+        session.play(looping: looping)
         result(nil)
     }
     
@@ -162,8 +162,8 @@ public class AudioVisualizerPlugin: NSObject, FlutterPlugin {
             let url = args?["url"] as? String ?? ""
             setDataSource(playerId: playerId, url: url, result: result)
         case "play":
-            let loop = args?["loop"] as? Bool ?? false
-            play(playerId: playerId, loop:loop, result: result)
+            let looping = args?["looping"] as? Bool ?? false
+            play(playerId: playerId, looping:looping, result: result)
         case "pause":
             pause(playerId: playerId, result: result)
         case "stop":

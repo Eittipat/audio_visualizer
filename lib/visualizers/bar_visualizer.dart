@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 class _BarVisualizerPainter extends CustomPainter {
-  final List<double> data;
+  final List<int> data;
   final Color color;
   final Paint wavePaint;
   final int gap;
@@ -22,7 +22,7 @@ class _BarVisualizerPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) return;
     final density = data.length;
-    double maxValue = data.reduce(math.max);
+    int maxValue = data.reduce(math.max);
     double barWidth = size.width / density;
     double div = data.length / density;
     wavePaint.strokeWidth = barWidth - gap;
@@ -57,7 +57,7 @@ class BarVisualizer extends StatelessWidget {
   final Color color;
   final Color backgroundColor;
   final int gap;
-  final List<double> input;
+  final List<int> input;
 
   @override
   Widget build(BuildContext context) {

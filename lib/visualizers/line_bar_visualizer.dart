@@ -1,16 +1,16 @@
 // Original source code from
 // - https://github.com/iamSahdeep/FlutterVisualizers
 
-import 'package:flutter/rendering.dart';
+import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-class LineBarVisualizer extends CustomPainter {
-  final List<double> data;
+class _LineBarVisualizer extends CustomPainter {
+  final List<int> data;
   final Color color;
   final Paint wavePaint;
   final int gap;
 
-  LineBarVisualizer({
+  _LineBarVisualizer({
     required this.data,
     required this.color,
     this.gap = 2,
@@ -36,7 +36,7 @@ class LineBarVisualizer extends CustomPainter {
     wavePaint.strokeWidth = math.max(1, barWidth - gap);
 
     // Find maximum amplitude for scaling
-    final maxAmplitude = data.reduce(math.max);
+    final maxAmplitude = math.max(1, data.reduce(math.max));
 
     // Calculate half height for center line
     final centerY = size.height / 2;
@@ -71,5 +71,34 @@ class LineBarVisualizer extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
     return true;
+  }
+}
+
+class LineBarVisualizer extends StatelessWidget {
+  const LineBarVisualizer({
+    super.key,
+    required this.input,
+    this.gap = 2,
+    this.color = Colors.blue,
+    this.backgroundColor = Colors.transparent,
+  });
+
+  final Color color;
+  final Color backgroundColor;
+  final int gap;
+  final List<int> input;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: backgroundColor,
+      child: CustomPaint(
+        painter: _LineBarVisualizer(
+          data: input,
+          gap: gap,
+          color: color,
+        ),
+      ),
+    );
   }
 }

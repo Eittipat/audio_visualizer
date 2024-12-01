@@ -20,11 +20,13 @@
 
 import 'dart:typed_data';
 
+import 'utils.dart';
+
 const int kLogFftSize = 10;
 const int kMaxFftSize = 1 << kLogFftSize;
 
 // Twiddle factors table from original code
-const List<int> twiddle = [
+const List<int> _twiddle = [
   0x00008000,
   0xff378001,
   0xfe6e8002,
@@ -283,48 +285,7 @@ const List<int> twiddle = [
   0x8001ff37,
 ];
 
-int int32(int value) {
-  // Mask to 32-bit unsigned integer
-  int maskedValue = value & 0xFFFFFFFF;
-
-  // Check if the value is larger than the max int32_t range
-  if (maskedValue > 0x7FFFFFFF) {
-    // Convert to a negative int32 by subtracting 2^32
-    return maskedValue - 0x100000000;
-  } else {
-    // Return as is if it's within the int32 range
-    return maskedValue;
-  }
-}
-
-int int16(int value) {
-  // Mask to 16-bit unsigned integer
-  int maskedValue = value & 0xFFFF;
-
-  // Check if the value is larger than the max int16_t range
-  if (maskedValue > 0x7FFF) {
-    // Convert to a negative int16 by subtracting 2^16
-    return maskedValue - 0x10000;
-  } else {
-    // Return as is if it's within the int16 range
-    return maskedValue;
-  }
-}
-
-int int8(int value) {
-  // Mask to 8-bit unsigned integer
-  int maskedValue = value & 0xFF;
-
-  // Check if the value is larger than the max int8_t range
-  if (maskedValue > 0x7F) {
-    // Convert to a negative int8 by subtracting 2^8
-    return maskedValue - 0x100;
-  } else {
-    // Return as is if it's within the int8 range
-    return maskedValue;
-  }
-}
-
+/* Returns the multiplication of \conj{a} and {b}. */
 int _mult(int a, int b) {
   a = int32(a);
   b = int32(b);
@@ -338,7 +299,7 @@ int _half(int a) {
   return int32((((a >> 1) & ~0x8000) | (a & 0x8000)) & 0xFFFFFFFF);
 }
 
-void fft(int n, Int32List v) {
+void _fft(int n, Int32List v) {
   int scale = kLogFftSize;
 
   // Bit reversal
@@ -368,7 +329,7 @@ void fft(int n, Int32List v) {
     for (int r = 1; r < p; ++r) {
       int w = (kMaxFftSize ~/ 4) - (r << scale);
       int i = w >> 31;
-      w = int32((twiddle[(w ^ i) - i] ^ (i << 16)));
+      w = int32((_twiddle[(w ^ i) - i] ^ (i << 16)));
 
       for (i = r; i < n; i += p << 1) {
         int x = _half(v[i]);
@@ -380,11 +341,11 @@ void fft(int n, Int32List v) {
   }
 }
 
-void fftReal(int n, Int32List v) {
+void _fftReal(int n, Int32List v) {
   int scale = kLogFftSize;
   int m = n >> 1;
 
-  fft(n, v);
+  _fft(n, v);
 
   for (int i = 1; i <= n; i <<= 1) {
     --scale;
@@ -398,12 +359,26 @@ void fftReal(int n, Int32List v) {
     int z = _half(v[n - i]);
     int y = (z - (x ^ 0xFFFF));
     x = _half((x + (z ^ 0xFFFF)));
-    y = _mult(y, twiddle[i << scale]);
+    y = _mult(y, _twiddle[i << scale]);
     v[i] = (x - y) & 0xFFFFFFFF;
     v[n - i] = ((x + y) ^ 0xFFFF);
   }
 }
 
+/// Performs FFT (Fast Fourier Transform) calculation on the given waveform data.
+///
+/// This method accepts a list of 8-bit unsigned integers representing the waveform data
+/// and outputs the FFT result into the provided list of 8-bit unsigned integers.
+///
+/// The input `waveform` list should contain pairs of bytes representing the waveform data.
+/// The output `fft` list will contain the FFT result, with each pair of bytes representing
+/// the real and imaginary components of the FFT result.
+///
+/// The method processes the input waveform data into a workspace, performs the FFT calculation,
+/// and then processes the workspace data into the output FFT buffer.
+///
+/// param [fft] The list of 8-bit unsigned integers to store the FFT result.
+/// param [waveform] The list of 8-bit unsigned integers representing the waveform data.
 void doFft(List<int> fft, List<int> waveform) {
   final int captureSize = waveform.length;
   // Create workspace with half the capture size
@@ -421,7 +396,7 @@ void doFft(List<int> fft, List<int> waveform) {
 
   // Only perform FFT if we have non-zero data
   if (nonzero != 0) {
-    fftReal(captureSize >> 1, workspace);
+    _fftReal(captureSize >> 1, workspace);
   }
 
   // Process workspace data into output FFT buffer
@@ -432,7 +407,7 @@ void doFft(List<int> fft, List<int> waveform) {
     while (tmp > 127 || tmp < -128) {
       tmp >>= 1;
     }
-    fft[i] = int16(tmp);
+    fft[i] = uint8(tmp);
 
     // Process imaginary component
     tmp = int16(workspace[i >> 1]);
@@ -441,6 +416,6 @@ void doFft(List<int> fft, List<int> waveform) {
     while (tmp > 127 || tmp < -128) {
       tmp >>= 1;
     }
-    fft[i + 1] = int16(tmp);
+    fft[i + 1] = uint8(tmp);
   }
 }

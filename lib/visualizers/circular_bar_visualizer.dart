@@ -5,10 +5,10 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:flutter/rendering.dart';
+import 'package:flutter/material.dart';
 
-class CircularBarVisualizer extends CustomPainter {
-  final List<double> data;
+class _CircularBarVisualizer extends CustomPainter {
+  final List<int> data;
   Float32List? points;
 
   final Color color;
@@ -16,7 +16,7 @@ class CircularBarVisualizer extends CustomPainter {
   final int gap;
   double radius = -1;
 
-  CircularBarVisualizer({
+  _CircularBarVisualizer({
     required this.data,
     required this.color,
     this.gap = 2,
@@ -55,7 +55,7 @@ class CircularBarVisualizer extends CustomPainter {
     }
 
     // Find the maximum value in the data for scaling
-    double maxValue = data.reduce((curr, next) => curr > next ? curr : next);
+    int maxValue = data.reduce((curr, next) => curr > next ? curr : next);
     if (maxValue == 0) maxValue = 1; // Prevent division by zero
 
     double angle = 0;
@@ -95,5 +95,34 @@ class CircularBarVisualizer extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
     return true;
+  }
+}
+
+class CircularBarVisualizer extends StatelessWidget {
+  const CircularBarVisualizer({
+    super.key,
+    required this.input,
+    this.gap = 2,
+    this.color = Colors.blue,
+    this.backgroundColor = Colors.transparent,
+  });
+
+  final Color color;
+  final Color backgroundColor;
+  final int gap;
+  final List<int> input;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: backgroundColor,
+      child: CustomPaint(
+        painter: _CircularBarVisualizer(
+          data: input,
+          gap: gap,
+          color: color,
+        ),
+      ),
+    );
   }
 }

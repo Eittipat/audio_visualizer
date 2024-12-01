@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:audio_visualizer/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'fft.dart';
 
-const kUpdateInterval = Duration(milliseconds: 500);
+const kUpdateInterval = Duration(milliseconds: 250);
 
 enum PlayerStatus {
   unknown,
@@ -21,8 +22,8 @@ class VisualizerPlayerValue extends AudioVisualizerValue {
   final PlayerStatus status;
   final bool initialized;
   final bool loaded;
-  final int position;
-  final int duration;
+  final Duration position;
+  final Duration duration;
   final Exception? exception;
 
   VisualizerPlayerValue({
@@ -31,8 +32,8 @@ class VisualizerPlayerValue extends AudioVisualizerValue {
     this.initialized = false,
     this.status = PlayerStatus.unknown,
     this.loaded = false,
-    this.position = 0,
-    this.duration = 0,
+    this.position = Duration.zero,
+    this.duration = Duration.zero,
     this.exception,
   });
 
@@ -43,8 +44,8 @@ class VisualizerPlayerValue extends AudioVisualizerValue {
     PlayerStatus? status,
     bool? initialized,
     bool? loaded,
-    int? position,
-    int? duration,
+    Duration? position,
+    Duration? duration,
     Exception? exception,
   }) {
     return VisualizerPlayerValue(
@@ -95,9 +96,12 @@ class VisualizerPlayer extends ChangeNotifier implements AudioVisualizer {
     }
   }
 
-  Future<void> play() async {
+  Future<void> play({bool looping = false}) async {
     try {
-      await _channel.invokeMethod('play', {"playerId": playerId});
+      await _channel.invokeMethod('play', {
+        "playerId": playerId,
+        "looping": looping,
+      });
       _timer?.cancel();
       _timer = Timer.periodic(kUpdateInterval, (timer) {
         _updateState();
@@ -149,8 +153,8 @@ class VisualizerPlayer extends ChangeNotifier implements AudioVisualizer {
       if (receivedPlayerId == playerId) {
         // Filter by playerId
         final buffer = call.arguments["waveform"] as List<dynamic>;
-        final data = List<int>.from(buffer.map((e) => e).toList());
-        model = model.copyWith(waveform: data);
+        final waveform = List<int>.from(buffer.map((e) => e).toList());
+        model = model.copyWith(waveform: waveform);
         shouldUpdate = true;
       }
     } else if (call.method == "onFFTChanged") {
@@ -206,8 +210,8 @@ class VisualizerPlayer extends ChangeNotifier implements AudioVisualizer {
       }
       _value = _value.copyWith(
         status: status,
-        duration: duration,
-        position: position,
+        duration: Duration(milliseconds: duration),
+        position: Duration(milliseconds: position),
         loaded: loaded,
       );
       notifyListeners();
@@ -218,7 +222,12 @@ class VisualizerPlayer extends ChangeNotifier implements AudioVisualizer {
 }
 
 class AudioVisualizerValue {
+  /// A list of integers representing the waveform data.
+  /// This list contains the amplitude values of the audio signal in the range [0, 255].
   final List<int> waveform;
+
+  /// A list of integers representing the FFT (Fast Fourier Transform) data.
+  /// This list contains the frequency domain representation of the audio signal in the range [-128, 127].
   final List<int> fft;
 
   AudioVisualizerValue({
@@ -254,19 +263,23 @@ class PCMVisualizer extends ChangeNotifier implements AudioVisualizer {
   void feed(Uint8List data) {
     final byteData = data.buffer.asByteData();
     final data16 = Int16List.view(
-        byteData.buffer, byteData.offsetInBytes, data.length ~/ 2);
+      byteData.buffer,
+      byteData.offsetInBytes,
+      data.length ~/ 2,
+    );
 
     final input = List<int>.filled(1024, 0);
-    final waveform = List<int>.filled(1024, 0);
     final fft = List<int>.filled(min(1024, data.length), 0);
     for (int i = 0; i < min(1024, data.length); i++) {
-      input[i] = scale(data16[i], -32768, 32767, 0, 255).round();
-      waveform[i] = scale(data16[i].abs(), 0, 32767, 0, 255).round();
+      // int16 to uint8
+      final u8 = scale(data16[i], -32768, 32767, 0, 255).round();
+      input[i] = u8;
     }
     doFft(fft, input);
+    final output = List<int>.from(fft.map((e) => int8(e)));
     _value = _value.copyWith(
-      fft: fft,
-      waveform: waveform,
+      fft: output,
+      waveform: input,
     );
     notifyListeners();
   }
@@ -274,12 +287,4 @@ class PCMVisualizer extends ChangeNotifier implements AudioVisualizer {
 
 abstract class AudioVisualizer implements ChangeNotifier {
   AudioVisualizerValue get value;
-}
-
-void debug(String tag, List<int> data) {
-  print("$tag => max: ${data.reduce(max)}, min: ${data.reduce(min)}");
-}
-
-double scale(num value, double min, double max, double newMin, double newMax) {
-  return (value - min) * (newMax - newMin) / (max - min) + newMin;
 }

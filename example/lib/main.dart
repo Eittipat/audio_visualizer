@@ -1,324 +1,172 @@
-import 'dart:async';
-import 'dart:io';
+import 'dart:math';
 
-import 'package:audio_visualizer/fft.dart';
+import 'package:audio_visualizer/audio_visualizer.dart';
+import 'package:audio_visualizer/utils.dart';
+import 'package:audio_visualizer/visualizers/audio_spectrum.dart';
 import 'package:audio_visualizer/visualizers/visualizers.dart';
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
-import 'package:audio_visualizer/audio_visualizer.dart';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'package:record/record.dart';
+import 'package:flutter/services.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MaterialApp(
+    themeMode: ThemeMode.dark,
+    darkTheme: ThemeData.dark(useMaterial3: true),
+    home: const MyApp(),
+  ));
 }
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<MyApp> createState() {
+    return _MyAppState();
+  }
 }
 
 class _MyAppState extends State<MyApp> {
-  final pcmVisualizer = PCMVisualizer();
   final audioPlayer = VisualizerPlayer();
-  final record = AudioRecorder();
-  bool isRecording = false;
-  StreamSubscription? _micData;
+
+  final sources = [
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+    "https://files.testfile.org/AUDIO/C/M4A/sample1.m4a",
+  ];
+  var sourceIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    setup();
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+    audioPlayer.initialize();
+    audioPlayer.setDataSource(sources[sourceIndex]);
+    audioPlayer.addListener(onUpdate);
   }
 
-  void setup() async {
-    pcmVisualizer.reset();
-    await audioPlayer.initialize();
+  void onUpdate() {
+    if (audioPlayer.value.status == PlayerStatus.ready) {
+      audioPlayer.play(looping: true);
+    }
   }
 
   @override
   void dispose() {
-    _micData?.cancel();
-    pcmVisualizer.dispose();
+    audioPlayer.removeListener(onUpdate);
     audioPlayer.dispose();
     super.dispose();
   }
 
-  AudioVisualizer get source {
-    return isRecording ? pcmVisualizer : audioPlayer;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Center(child: Text('Audio Visualizer')),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Center(
+          child: Text('Audio Visualizer'),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          isRecording ? Colors.deepOrangeAccent : null,
-                    ),
-                    onPressed: () async {
-                      if (await record.isRecording()) {
-                        _micData?.cancel();
-                        record.stop();
-                        setState(() {
-                          isRecording = false;
-                        });
-                        return;
-                      }
-                      final stream = await record.startStream(
-                        const RecordConfig(
-                          encoder: AudioEncoder.pcm16bits,
-                          autoGain: true,
-                          echoCancel: true,
-                          noiseSuppress: true,
-                          sampleRate: 44100,
-                          numChannels: 1,
-                        ),
-                      );
-                      _micData = stream.listen((data) {
-                        pcmVisualizer.feed(data);
-                      });
-                      setState(() {
-                        isRecording = true;
-                      });
-                    },
-                    child: const Text('Mic'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      audioPlayer.setDataSource(
-                        "https://files.testfile.org/AUDIO/C/M4A/sample1.m4a",
-                      );
-                    },
-                    child: const Text('HTTP'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final path = await downloadFile(
-                        "https://files.testfile.org/anime.mp3",
-                        "anime.mp3",
-                      );
-                      audioPlayer.setDataSource("file://$path");
-                    },
-                    child: const Text('File'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      audioPlayer.setDataSource(
-                        "asset://assets/sample.mp3",
-                      );
-                    },
-                    child: const Text('Asset'),
-                  ),
-                ],
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      audioPlayer.play();
-                    },
-                    child: const Icon(Icons.play_arrow),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      audioPlayer.pause();
-                    },
-                    child: const Icon(Icons.pause),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      audioPlayer.stop();
-                    },
-                    child: const Icon(Icons.stop),
-                  ),
-                ],
-              ),
-              ListenableBuilder(
-                listenable: audioPlayer,
-                builder: (context, child) {
-                  final value = audioPlayer.value;
-                  return Text(
-                    "Status: ${value.status} (${value.position}/${value.duration})",
-                  );
-                },
-              ),
-              Expanded(
-                child: GridView(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 2,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                  ),
-                  shrinkWrap: true,
-                  children: [
-                    const Center(child: Text("Wave")),
-                    const Center(child: Text("Frequency")),
-                    VisualizerBuilder(
-                      controller: source,
-                      builder: (context, value, child) {
-                        return BarVisualizer(
-                          input: value.amplitudes,
-                          backgroundColor: Colors.black,
-                          color: Colors.greenAccent,
-                          gap: 2,
-                        );
-                      },
-                    ),
-                    VisualizerBuilder(
-                      controller: source,
-                      builder: (context, value, child) {
-                        return BarVisualizer(
-                          input: value.levels,
-                          color: Colors.yellow,
-                          backgroundColor: Colors.black,
-                          gap: 2,
-                        );
-                      },
-                    ),
-                    VisualizerBuilder(
-                      controller: source,
-                      builder: (context, value, child) {
-                        return Container(
-                          color: Colors.black,
-                          child: CustomPaint(
-                            painter: CircularBarVisualizer(
-                              color: Colors.greenAccent,
-                              data: value.amplitudes,
-                              gap: 2,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    VisualizerBuilder(
-                      controller: source,
-                      builder: (context, value, child) {
-                        final buffer = value.magnitudes.sublist(
-                          0,
-                          math.min(value.magnitudes.length, 128),
-                        );
-                        return Container(
-                          color: Colors.black,
-                          child: CustomPaint(
-                            painter: CircularBarVisualizer(
-                              color: Colors.yellow,
-                              data: buffer,
-                              gap: 2,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    VisualizerBuilder(
-                      controller: source,
-                      builder: (context, value, child) {
-                        return Container(
-                          color: Colors.black,
-                          child: CustomPaint(
-                            painter: MultiWaveVisualizer(
-                              color: Colors.greenAccent,
-                              data: value.amplitudes,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    VisualizerBuilder(
-                      controller: source,
-                      builder: (context, value, child) {
-                        return Container(
-                          color: Colors.black,
-                          child: CustomPaint(
-                            painter: MultiWaveVisualizer(
-                              color: Colors.yellow,
-                              data: value.magnitudes,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    VisualizerBuilder(
-                      controller: source,
-                      builder: (context, value, child) {
-                        return Container(
-                          color: Colors.black,
-                          child: CustomPaint(
-                            painter: LineBarVisualizer(
-                              color: Colors.greenAccent,
-                              data: value.amplitudes,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    VisualizerBuilder(
-                      controller: source,
-                      builder: (context, value, child) {
-                        final buffer = value.magnitudes.sublist(
-                          0,
-                          math.min(value.magnitudes.length, 128),
-                        );
-                        return Container(
-                          color: Colors.black,
-                          child: CustomPaint(
-                            painter: LineBarVisualizer(
-                              color: Colors.yellow,
-                              data: buffer,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
+      ),
+      body: Column(
+        children: [
+          const SizedBox(height: 32),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListenableBuilder(
+              listenable: audioPlayer,
+              builder: (context, child) {
+                final duration = audioPlayer.value.duration;
+                final position = audioPlayer.value.position;
+                final durationText = formatDuration(duration);
+                final positionText = formatDuration(position);
+                return Text(
+                  "$positionText / $durationText",
+                  style: Theme.of(context).textTheme.headlineLarge,
+                );
+              },
+            ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListenableBuilder(
+              listenable: audioPlayer,
+              builder: (context, child) {
+                return Text(
+                  audioPlayer.value.status == PlayerStatus.playing
+                      ? "Now Playing"
+                      : "",
+                  style: Theme.of(context).textTheme.bodyLarge,
+                );
+              },
+            ),
+          ),
+          Expanded(
+            child: ListenableBuilder(
+              listenable: audioPlayer,
+              builder: (context, child) {
+                final data = getMagnitudes(audioPlayer.value.fft);
+                return AudioSpectrum(
+                  fftMagnitudes: data,
+                  bandType: BandType.tenBand,
+                  builder: (context, value, child) {
+                    return RainbowBlockVisualizer(
+                      data: value.levels,
+                      maxSample: 32,
+                      blockHeight: 14,
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          ListenableBuilder(
+            listenable: audioPlayer,
+            builder: (context, child) {
+              final duration = audioPlayer.value.duration.inMilliseconds;
+              final position = audioPlayer.value.position.inMilliseconds;
+              return LinearProgressIndicator(
+                value: position / max(1, duration),
+                minHeight: 8,
+              );
+            },
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.play_arrow),
+              onPressed: () {
+                audioPlayer.play(looping: true);
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.pause),
+              onPressed: () {
+                audioPlayer.pause();
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.stop),
+              onPressed: () {
+                audioPlayer.stop();
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.loop),
+              onPressed: () {
+                sourceIndex = (sourceIndex + 1) % sources.length;
+                audioPlayer.stop();
+                audioPlayer.setDataSource(sources[sourceIndex]);
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-Future<String> downloadFile(String url, String filename) async {
-  // Make HTTP request with streaming
-  final response =
-      await http.Client().send(http.Request('GET', Uri.parse(url)));
-
-  if (response.statusCode != 200) {
-    throw Exception('Failed to download file: ${response.statusCode}');
-  }
-  final directory = await getTemporaryDirectory();
-  final filePath = '${directory.path}/$filename';
-  final file = File(filePath);
-
-  // Create file and write chunks
-  final sink = file.openWrite();
-  await response.stream.forEach((chunk) {
-    sink.add(chunk);
-  });
-
-  await sink.close();
-  return filePath;
+String formatDuration(Duration duration) {
+  final minutes = duration.inMinutes;
+  final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+  return "$minutes:$seconds";
 }

@@ -13,6 +13,7 @@ class MiniAudioPlayer {
     private var mPlayerNode: AVAudioPlayerNode
     private var mStatus: AudioStatus
     private var mLoaded: Bool
+    private var mLooping: Bool
     private var mPosition: Int
     private var mDuration: Int
     private var mError: Error?
@@ -31,6 +32,7 @@ class MiniAudioPlayer {
         self.mPlayerNode = AVAudioPlayerNode()
         self.mStatus = .unknown
         self.mLoaded = false
+        self.mLooping = false
         self.mPosition = 0
         self.mDuration = 0
         self.mError = nil
@@ -156,12 +158,13 @@ class MiniAudioPlayer {
         }
     }
     
-    func play(loop: Bool) {
+    func play(looping: Bool) {
         if(self.mStatus == .ready || self.mStatus == .paused || self.mStatus == .stopped) {
             if(self.mStatus == .stopped) {
                 self.prepareAndScheduleAudio()
             }
             self.enableVisualizer()
+            self.mLooping = looping
             self.mPlayerNode.play()
             self.mStatus = .playing
             self.notifyStateChanged()
@@ -192,6 +195,7 @@ class MiniAudioPlayer {
         self.disableVisualizer()
         self.mStatus = .unknown
         self.mLoaded = false
+        self.mLooping = false
         self.mPosition = 0
         self.mDuration = 0
         self.mError = nil
@@ -206,7 +210,6 @@ class MiniAudioPlayer {
     func release() {
         self.mAudioEngine.stop()
     }
-    
     
     func getState() -> [String:Any] {
         if self.mPlayerNode.isPlaying {
@@ -276,7 +279,18 @@ class MiniAudioPlayer {
         self.mPlayerNode.scheduleFile(self.mAVAudioFile!, at: nil) {
             DispatchQueue.main.async {
                 if(self.mStatus == .playing) {
-                    self.onPlaybackComplete()
+                    if(self.mLooping == true) {
+                        self.mPosition = self.mDuration
+                        self.mPlayerNode.stop()
+                        self.mPlayerNode.reset()
+                        self.notifyStateChanged()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+                            self?.prepareAndScheduleAudio()
+                            self?.mPlayerNode.play()
+                        }
+                    } else {
+                        self.onPlaybackComplete()
+                    }
                 }
             }
         }
