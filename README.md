@@ -12,13 +12,13 @@ Explore all usage examples in the [example directory](https://github.com/Eittipa
 
 ## ✨ Features
 
-| Feature                | Android | iOS |
-|------------------------|---------|-----|
-| Visualize File         | ✅      | ✅  |
-| Visualize Asset        | ✅      | ✅  |
-| Visualize HTTP         | ✅      | ✅  |
-| Visualize Microphone   | ✅      | ✅  |
-| Visualize Raw PCM16    | ✅      | ✅  |
+| Feature                | Android | iOS | macOS |
+|------------------------|---------|-----|-------|
+| Visualize File         | ✅      | ✅  | ✅    |
+| Visualize Asset        | ✅      | ✅  | ✅    |
+| Visualize HTTP         | ✅      | ✅  | ✅    |
+| Visualize Microphone   | ✅      | ✅  | ✅    |
+| Visualize Raw PCM16    | ✅      | ✅  | ✅    |
 
 ---
 

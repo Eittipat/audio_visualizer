@@ -42,10 +42,18 @@ class MiniAudioPlayer {
         self.mAudioEngine.attach(self.mPlayerNode)
         self.mAudioEngine.connect(self.mPlayerNode, to: self.mAudioEngine.mainMixerNode, format: nil)
     }
-    
-    
+
+    private func getAssetFilePath(assetPath: String) -> String? {
+#if os(iOS)
+        let assetUrl = Bundle.main.path(forResource: assetPath, ofType: nil)
+#elseif os(macOS)
+        let assetUrl = Bundle.main.bundlePath + "/" + assetPath
+#endif
+        return assetUrl
+    }
+
     private func loadAssetFile(assetPath: String, completion:@escaping (Result<AVAudioFile, Error>) -> Void) {
-        if let assetUrl = Bundle.main.path(forResource: assetPath, ofType: nil) {
+        if let assetUrl = getAssetFilePath(assetPath: assetPath) {
             do {
                 let audioFile = try AVAudioFile(forReading: URL(fileURLWithPath: assetUrl))
                 completion(.success(audioFile))
