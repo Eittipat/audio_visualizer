@@ -1,5 +1,9 @@
 import AVFoundation
+#if os(iOS)
 import Flutter
+#elseif os(macOS)
+import FlutterMacOS
+#endif
 
 
 public class AudioVisualizerPlugin: NSObject, FlutterPlugin {
@@ -9,7 +13,12 @@ public class AudioVisualizerPlugin: NSObject, FlutterPlugin {
     private static var registrar: FlutterPluginRegistrar?
 
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "audio_visualizer", binaryMessenger: registrar.messenger())
+#if os(iOS)
+        let binaryMessenger = registrar.messenger()
+#elseif os(macOS)
+        let binaryMessenger = registrar.messenger
+#endif
+        let channel = FlutterMethodChannel(name: "audio_visualizer", binaryMessenger: binaryMessenger)
         let instance = AudioVisualizerPlugin()
         instance.channel = channel
         AudioVisualizerPlugin.registrar = registrar

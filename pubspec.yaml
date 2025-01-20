@@ -42,9 +42,13 @@ flutter:
     # -------------------
       ios:
         pluginClass: AudioVisualizerPlugin
+        sharedDarwinSource: true
       android:
         package: com.iammop.audio_visualizer
         pluginClass: AudioVisualizerPlugin
+      macos:
+        pluginClass: AudioVisualizerPlugin
+        sharedDarwinSource: true
     # -------------------
 
   # To add assets to your plugin package, add an assets section, like this:
